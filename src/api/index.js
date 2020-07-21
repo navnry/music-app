@@ -5,7 +5,9 @@ import {
     songUrl,
     checkSong,
     songLyric,
-    recommendSheet
+    recommendSheet,
+    recommendSheetList,
+    songComment
 } from './config'
 // 请求超时时间
 axios.defaults.timeout = 30000
@@ -41,12 +43,22 @@ export default {
     recommendSheetFn(limit) {
         return axios.get(recommendSheet, {
             params: {
-                limit:limit
+                limit: limit
             }
         })
     },
 
+    /***
+     *
+     */
 
+    recommendSheetListFn(id) {
+        return axios.get(recommendSheetList, {
+            params: {
+                id: id
+            }
+        })
+    },
     /***
      *请求推荐歌曲
      */
@@ -99,4 +111,12 @@ export default {
         })
     },
 
+    songCommentFn(id, limit) {
+        return axios.get(songComment, {
+            params: {
+                id: id,
+                limit: limit
+            }
+        })
+    }
 }

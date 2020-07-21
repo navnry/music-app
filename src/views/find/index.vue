@@ -2,31 +2,36 @@
     <div class="find" ref="recommend">
         <Banner></Banner>
         <div class="sheet">
+            <h3>推荐歌单</h3>
             <div class="wrap">
-                <div class="item" v-for="item in recommendSheet">
+                <div class="item" v-for="item in recommendSheet" @click="skip(item.id)">
                     <div class="pic">
-                        <img :src="item.picUrl" alt="">
+                        <img :src="item.picUrl" v-lazy="item.picUrl" alt="">
+                        <div class="count">
+                            <i class="iconfont icon-zanting"></i>
+                            <span>{{formatCount(item.playCount)}}</span>
+                        </div>
                     </div>
                     <div class="con">
-                        <p class="txt-cut">{{item.name}}</p>
+                        <p>{{item.name}}</p>
                     </div>
                 </div>
             </div>
         </div>
-        <scroll class="recommend-content" ref="scroll" :data="playList">
-            <div>
-                <div class="recommend-song" ref="recommendSong">
-                    <ul>
-                        <li class="item" v-for="item in recommendMusic" :key="item.id" @click="selectSong(item)">
-                            <div class="icon">
-                                <img :src="item.image">
-                            </div>
-                            <div class="text">
-                                <p class="name">{{item.name}}</p>
-                                <p class="singer">{{item.singer}}</p>
-                            </div>
-                        </li>
-                    </ul>
+        <scroll class="song" ref="scroll" :data="playList">
+            <h3>推荐歌曲</h3>
+            <div class="wrap" ref="recommendSong">
+                <div class="item" v-for="item in recommendMusic" :key="item.id" @click="selectSong(item)">
+                    <div class="pic">
+                        <img :src="item.image" v-lazy="item.image">
+                    </div>
+                    <div class="text">
+                        <p class="name">{{item.name}}</p>
+                        <p class="singer">{{item.singer}}</p>
+                    </div>
+                    <div class="icon">
+                        <i class="iconfont icon-zanting"></i>
+                    </div>
                 </div>
             </div>
         </scroll>
@@ -67,6 +72,14 @@
             open() {
                 this.setFullScreen(true)
             },
+            skip(id) {
+                this.$router.push({
+                    path: '/sheetlist',
+                    query: {
+                        id: id
+                    }
+                })
+            },
             selectSong(item) {
                 this.insertSong(item)
             },
@@ -80,7 +93,6 @@
             },
             _getRecommendSheet() {
                 api.recommendSheetFn().then(res => {
-                    console.log(res.data.result);
                     if (res.status === 200) {
                         this.recommendSheet = res.data.result
                     }
@@ -105,6 +117,16 @@
                     }
                 })
             },
+
+            formatCount(val) {
+                if (val > 100000000) {
+                    return (val / 100000000).toFixed(2) + "亿"
+                } else if (val > 10000) {
+                    return (val / 10000).toFixed(2) + "万"
+                } else {
+                    return val
+                }
+            },
             ...mapMutations({
                 setMuiscList: 'SET_MUSIC_LIST',
                 setFullScreen: 'SET_FULL_SCREEN'
@@ -121,45 +143,7 @@
 </script>
 
 <style lang="less" scoped>
-    @keyframes rotate {
-        0% {
-            transform: rotate(0);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
 
-    .top-tip {
-        display: flex;
-        align-items: center;
-
-        .search {
-            flex: 1;
-            /*margin-right: 10px;*/
-        }
-
-        .circle {
-            margin-right: 12px;
-            width: 32px;
-            height: 32px;
-
-            .van-circle {
-                padding: 3px;
-
-                img {
-                    width: 100%;
-                    height: 100%;
-                    border-radius: 50%;
-                    animation: rotate 10s linear infinite;
-
-                    &.pause {
-                        animation-play-state: paused;
-                    }
-                }
-            }
-        }
-    }
 
     .find {
         position: fixed;
@@ -169,30 +153,50 @@
 
         .sheet {
             padding: 10px 0;
-            .wrap {
-                padding: 10px;
 
-                &::after {
-                    content: "";
-                    display: block;
-                    height: 0;
-                    line-height: 0;
-                    visibility: hidden;
-                    clear: both;
+            h3 {
+                font-size: 14px;
+                padding: 8px 10px;
+            }
+
+            .wrap {
+                padding: 0 10px;
+                white-space: nowrap;
+                overflow-x: auto;
+
+                &::-webkit-scrollbar {
+                    display: none;
                 }
 
-                .item {
-                    width: 32%;
-                    float: left;
-                    margin-right: 2%;
-                    margin-top: 2%;
-                    &:nth-child(-n+3){
-                        margin-top: 0;
-                    }
+                /*&::after {*/
+                /*    content: "";*/
+                /*    display: block;*/
+                /*    height: 0;*/
+                /*    line-height: 0;*/
+                /*    visibility: hidden;*/
+                /*    clear: both;*/
 
-                    &:nth-child(3n) {
+                /*}*/
+
+                .item {
+                    width: 108px;
+                    display: inline-block;
+                    margin-right: 10px;
+
+                    &:last-child {
                         margin-right: 0;
                     }
+
+                    /*float: left;*/
+                    /*margin-right: 2%;*/
+                    /*margin-top: 2%;*/
+                    /*&:nth-child(-n+3){*/
+                    /*    margin-top: 0;*/
+                    /*}*/
+
+                    /*&:nth-child(3n) {*/
+                    /*    margin-right: 0;*/
+                    /*}*/
 
                     .pic {
                         width: 100%;
@@ -206,54 +210,57 @@
                             width: 100%;
                             height: 100%;
                         }
+
+                        .count {
+                            position: absolute;
+                            top: 2px;
+                            right: 4px;
+                            color: #ffffff;
+                            display: flex;
+                            align-items: center;
+
+                            i {
+                                font-size: 14px;
+                                margin-right: 5px;
+                            }
+
+                            span {
+                                font-size: 11px;
+                            }
+                        }
                     }
 
                     .con {
-                        font-size: 12px;
+                        font-size: 11px;
                         padding: 5px;
                         line-height: 1.5;
+
                         p {
-                            height: 3em;
                             overflow: hidden;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
                         }
                     }
                 }
             }
         }
 
-        .recommend-content {
+        .song {
             width: 100%;
             overflow: hidden;
 
-            .decorate {
-                position: absolute;
-                top: -30vh;
-                z-index: -10;
-                width: 100%;
-                height: 50vh;
-                vertical-align: inherit;
+            h3 {
+                font-size: 14px;
+                padding: 8px 10px;
             }
 
-            .slider-wrapper {
-                width: 96%;
-                margin: 0 auto;
-                border-radius: 5px;
-                overflow: hidden;
-            }
 
-            .recommend-song {
+            .wrap {
                 box-sizing: border-box;
                 width: 100%;
                 text-align: center;
                 padding: 0 10px;
 
-                .title {
-                    height: 65px;
-                    line-height: 65px;
-                    padding-left: 1.5%;
-                    text-align: left;
-                    font-weight: bold;
-                }
 
                 .item {
                     position: relative;
@@ -262,16 +269,22 @@
                     display: flex;
                     align-items: center;
 
-                    .icon {
+                    .pic {
                         position: relative;
-                        width: 40px;
-                        height: 40px;
+                        width: 44px;
+                        height: 44px;
                         margin-right: 5px;
 
                         img {
                             width: 100%;
                             height: 100%;
                             border-radius: 3px;
+                        }
+                    }
+
+                    .icon {
+                        i {
+                            font-size: 18px;
                         }
                     }
 

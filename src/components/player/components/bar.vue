@@ -1,7 +1,7 @@
 <template>
     <div class="bar" ref="progressBar">
         <span class="current-time">{{currentTime}}</span>
-        <van-slider active-color="#ffffff" inactive-color="#999" button-size=".12rem" :value="percent"
+        <van-slider step="0.1" active-color="#ffffff" inactive-color="#999" button-size=".12rem" :value="percent"
                     @change="progressChanged"/>
         <span class="all-time">{{allTime}}</span>
     </div>

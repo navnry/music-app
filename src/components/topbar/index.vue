@@ -27,7 +27,6 @@
         },
         methods:{
             open() {
-                console.log(1);
                 this.setFullScreen(true)
             },
             ...mapMutations({
@@ -38,6 +37,15 @@
 </script>
 
 <style scoped lang="less">
+    @keyframes rotate {
+        0% {
+            transform: rotate(0);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
     .toptab {
         position: fixed;
         width: 100%;

@@ -82,6 +82,7 @@
     import api from '@/api/index'
     import {playMode, shuffle} from '@/assets/js/config'
     import Lyc from './components/lyc'
+    import {songComment} from "../../api/config";
 
     export default {
         name: '',
@@ -152,6 +153,7 @@
             },
             url(newUrl) {
                 this._getLyric(this.currentSong.id)
+                this._getComment(this.currentSong.id,10)
                 this.$refs.audio.src = newUrl
                 let stop = setInterval(() => {
                     this.duration = this.$refs.audio.duration
@@ -308,6 +310,11 @@
                 // console.log(this.currentSong.image);
                 // this.currentThumb(this.currentSong.image)
             },
+            _getComment(id,limt) {
+                api.songCommentFn(id,limt).then(res => {
+                    console.log(res);
+                })
+            },
             _getLyric(id) {
                 if (this.currentLyric) {
                     this.currentLyric.stop()
@@ -373,7 +380,7 @@
             bottom: 0;
             z-index: 150;
             overflow: hidden;
-
+            background-color: #000000;
 
             .plyerBg {
                 position: absolute;

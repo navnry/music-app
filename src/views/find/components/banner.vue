@@ -3,6 +3,7 @@
         <swiper ref="mySwiper" :options="swiperOptions">
             <swiper-slide v-for="item in swiperList">
                 <img class="banner-img" :src="item.pic" alt=""/>
+                <span :style="{backgroundColor:item.titleColor}">{{item.typeTitle}}</span>
             </swiper-slide>
             <div class="swiper-pagination" slot="pagination"></div>
         </swiper>
@@ -52,7 +53,6 @@
                 if (res.status === 200 && res.statusText === 'OK') {
                     res = res.data.banners
                     this.swiperList = res
-
                 }
             }
         },
@@ -67,17 +67,29 @@
 
 
         .swiper-container {
-            padding: 0 12px;
+            padding: 0 10px;
 
             .swiper-slide {
                 width: 100%;
                 border-radius: 8px;
                 overflow: hidden;
+                position: relative;
 
                 img {
                     display: block;
                     width: 100%;
 
+                }
+
+                span {
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                    border-radius: 8px 0 0 0;
+                    font-size: 10px;
+                    color: #ffffff;
+                    line-height: 1.8;
+                    padding: 0 5px;
                 }
             }
         }

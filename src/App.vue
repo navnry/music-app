@@ -53,7 +53,7 @@
         overflow-y: auto;
         overflow-x: hidden;
         padding-bottom: 1.4rem;
-        padding-top: 1.4rem;
+        padding-top: 1.1rem;
     }
 
 </style>
