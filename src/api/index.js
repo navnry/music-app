@@ -5,6 +5,7 @@ import {
     songUrl,
     checkSong,
     songLyric,
+    recommendSheet
 } from './config'
 // 请求超时时间
 axios.defaults.timeout = 30000
@@ -15,7 +16,15 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 
 export default {
 
-
+    /**
+     * 获取网络时间
+     */
+    getOnlineTime() {
+        return axios.get("http://quan.suning.com/getSysTime.do")
+    },
+    /**
+     *
+     */
     /**
      * 请求发现页面首页轮播图
      */
@@ -23,10 +32,25 @@ export default {
         return axios.get(bannerSwiper)
     },
 
+
     /***
-     *
+     * 请求推荐歌单
+     * @param {*} limit 取出数量 , 默认为 30 (不支持 offset)
      */
-    perSongFn(id){
+
+    recommendSheetFn(limit) {
+        return axios.get(recommendSheet, {
+            params: {
+                limit:limit
+            }
+        })
+    },
+
+
+    /***
+     *请求推荐歌曲
+     */
+    perSongFn(id) {
         return axios.get(perSong, {
             params: {
                 id,

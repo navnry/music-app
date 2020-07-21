@@ -45,10 +45,10 @@
             }
         },
         methods: {
-            _getFindInfo() {
-                api.bannerSwiperFn().then(this.getFindInfoSuc)
+            _getFindSwiper() {
+                api.bannerSwiperFn().then(this.getFindSwiperSuc)
             },
-            getFindInfoSuc(res) {
+            getFindSwiperSuc(res) {
                 if (res.status === 200 && res.statusText === 'OK') {
                     res = res.data.banners
                     this.swiperList = res
@@ -57,7 +57,7 @@
             }
         },
         mounted() {
-            this._getFindInfo()
+            this._getFindSwiper()
         }
     }
 </script>

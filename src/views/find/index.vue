@@ -1,17 +1,18 @@
 <template>
     <div class="find" ref="recommend">
-        <div class="top-tip">
-            <div class="search">
-                <van-search v-model="searchValue" shape="round" placeholder="请输入搜索关键词"/>
-            </div>
-            <div class="circle" @click.stop="open">
-                <van-circle size=".64rem" color="#C20C0C" :value="this.$store.state.playProgress">
-                    <img :class="{'pause': !playing}" :src="this.$store.state.currentThumb">
-                </van-circle>
+        <Banner></Banner>
+        <div class="sheet">
+            <div class="wrap">
+                <div class="item" v-for="item in recommendSheet">
+                    <div class="pic">
+                        <img :src="item.picUrl" alt="">
+                    </div>
+                    <div class="con">
+                        <p class="txt-cut">{{item.name}}</p>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <Banner></Banner>
         <scroll class="recommend-content" ref="scroll" :data="playList">
             <div>
                 <div class="recommend-song" ref="recommendSong">
@@ -40,17 +41,20 @@
     import Banner from './components/banner'
 
     export default {
-        name:"find",
+        name: "find",
         data() {
             return {
                 banner: [],
                 playList: [],
+                recommendSheet: [],
                 recommendMusic: [],
                 searchValue: '',
+
             }
         },
         created() {
             this._getRecommendMusic()
+            this._getRecommendSheet()
         },
         mounted() {
         },
@@ -73,6 +77,14 @@
                     return item.name
                 })
                 return name.join('/')
+            },
+            _getRecommendSheet() {
+                api.recommendSheetFn().then(res => {
+                    console.log(res.data.result);
+                    if (res.status === 200) {
+                        this.recommendSheet = res.data.result
+                    }
+                })
             },
             _getRecommendMusic() {
                 api.perSongFn().then((res) => {
@@ -154,6 +166,60 @@
         width: 100%;
         top: 0;
         bottom: 0;
+
+        .sheet {
+            padding: 10px 0;
+            .wrap {
+                padding: 10px;
+
+                &::after {
+                    content: "";
+                    display: block;
+                    height: 0;
+                    line-height: 0;
+                    visibility: hidden;
+                    clear: both;
+                }
+
+                .item {
+                    width: 32%;
+                    float: left;
+                    margin-right: 2%;
+                    margin-top: 2%;
+                    &:nth-child(-n+3){
+                        margin-top: 0;
+                    }
+
+                    &:nth-child(3n) {
+                        margin-right: 0;
+                    }
+
+                    .pic {
+                        width: 100%;
+                        padding-bottom: 100%;
+                        position: relative;
+                        border-radius: 8px;
+                        overflow: hidden;
+
+                        img {
+                            position: absolute;
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+
+                    .con {
+                        font-size: 12px;
+                        padding: 5px;
+                        line-height: 1.5;
+                        p {
+                            height: 3em;
+                            overflow: hidden;
+                        }
+                    }
+                }
+            }
+        }
 
         .recommend-content {
             width: 100%;

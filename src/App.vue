@@ -1,11 +1,13 @@
 <template>
     <div id="app">
+        <Topbar/>
         <router-view class="view-container"/>
         <player/>
         <Tabbar/>
     </div>
 </template>
 <script>
+    import Topbar from '@/components/topbar'
     import Tabbar from '@/components/tabbar'
     import player from '@/components/player'
 
@@ -16,7 +18,7 @@
             }
         },
         components: {
-            Tabbar, player
+            Tabbar, player,Topbar
         },
     }
 </script>
@@ -51,6 +53,7 @@
         overflow-y: auto;
         overflow-x: hidden;
         padding-bottom: 1.4rem;
+        padding-top: 1.4rem;
     }
 
 </style>
