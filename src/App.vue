@@ -2,6 +2,7 @@
     <div id="app">
         <Topbar/>
         <router-view class="view-container"/>
+
         <player/>
         <Tabbar/>
     </div>
@@ -18,12 +19,12 @@
             }
         },
         components: {
-            Tabbar, player,Topbar
+            Tabbar, player, Topbar
         },
     }
 </script>
 <style lang="less">
-    @import "//at.alicdn.com/t/font_1934153_zxld48ngt5.css";
+    @import "//at.alicdn.com/t/font_1934153_swfdpazxop.css";
 
     html, body {
         width: 100%;

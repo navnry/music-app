@@ -18,6 +18,9 @@
                 <div class="middle" @click="changeMiddle">
                     <transition name="middleL">
                         <div class="middle-l" v-show="currentShow === 'cd'">
+                            <div class="cd-contro" :class="{'pause': !playing}">
+                                <img src="../../assets/images/cd_contro.png" alt="">
+                            </div>
                             <div class="cd-wrapper">
                                 <div class="cd play" :class="{'pause': !playing}">
                                     <img :src="currentSong.image" class="image">
@@ -41,6 +44,11 @@
                     </transition>
                 </div>
                 <div class="bottom">
+                    <Operation
+                            :total="total"
+                            @downLoad="downLoad"
+                            @showComment="showComment"
+                    />
                     <progress-bar
                             :currentTime="format(currentTime)"
                             :allTime="format(duration)"
@@ -56,6 +64,11 @@
                 </div>
             </div>
         </transition>
+        <Comment
+                :commentData="commentData"
+                :songname="currentSong.name"
+                ref="comment"
+        />
         <playlist
                 @stopMusic="stopMusic"
                 ref="playlist"/>
@@ -76,13 +89,16 @@
     import ProgressBar from './components/bar'
     import Panel from './components/panel'
     import Playlist from './components/list'
+    import Comment from './components/comment'
+    import Operation from './components/operation'
     import Lyric from 'lyric-parser'
     import Scroll from '@/components/scroll'
     import {mapGetters, mapMutations, mapActions} from 'vuex'
-    import api from '@/api/index'
+    import api from '@/api'
     import {playMode, shuffle} from '@/assets/js/config'
     import Lyc from './components/lyc'
-    import {songComment} from "../../api/config";
+    import saveAs from 'file-saver';
+    import {Dialog, Toast} from 'vant';
 
     export default {
         name: '',
@@ -99,7 +115,9 @@
                 currentLineNum: 0,
                 currentShow: 'cd',
                 playingLyric: '',
-                noLyric: false
+                noLyric: false,
+                total: "",
+                commentData: {}
             }
         },
         components: {
@@ -107,8 +125,13 @@
             ProgressCircle,
             Scroll,
             Playlist,
+            Comment,
             Panel,
-            Lyc
+            Lyc,
+            Operation,
+            Dialog,
+            Toast,
+
         },
         computed: {
             iconMode() {
@@ -153,7 +176,7 @@
             },
             url(newUrl) {
                 this._getLyric(this.currentSong.id)
-                this._getComment(this.currentSong.id,10)
+                this._getComment(this.currentSong.id, 10)
                 this.$refs.audio.src = newUrl
                 let stop = setInterval(() => {
                     this.duration = this.$refs.audio.duration
@@ -162,11 +185,6 @@
                     }
                 }, 150)
                 this.setPlayingState(true)
-                this.setCurrentThumb(this.currentSong.image)
-            },
-            currentThumb(newVal) {
-                // newVal = this.currentSong.image
-                this.setCurrentThumb(newVal)
             },
             currentTime() {
                 this.percent = (this.currentTime / this.duration) * 100
@@ -174,39 +192,54 @@
             }
         },
         methods: {
-            firstPlay() {
-                let playPromise = this.$refs.audio.play()
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        this.$refs.audio.play()
-                    }).catch(() => {
 
-                    })
-                }
 
-            },
+            /**
+             *  删除最后一首的时候暂停音乐
+             */
             stopMusic() {
-                // 删除最后一首的时候暂停音乐
                 this.$refs.audio.pause()
             },
-            showPlaylist() {
-                this.$refs.playlist.show()
-            },
+
+
+            /**
+             * 封面与歌词界面切换
+             */
             changeMiddle() {
                 this.currentShow === 'cd' ? this.currentShow = 'lyric' : this.currentShow = 'cd'
             },
+
+            /**
+             * 切换顺序播放，单曲循环，随机播放
+             */
             changeMode() {
                 const mode = (this.mode + 1) % 3
                 this.setPlayMode(mode)
                 let list = null
-                if (mode === playMode.random) {
-                    list = shuffle(this.sequenceList)
-                } else {
+                if (mode === 0) {
+                    Toast('已切换为顺序播放！');
                     list = this.sequenceList
+                } else if (mode === 1) {
+                    Toast('已切换为单曲循环！');
+                    list = this.sequenceList
+                } else {
+                    Toast('已切换为随机播放！');
+                    list = shuffle(this.sequenceList)
                 }
+
+                // if (mode === playMode.random) {
+                //     list = shuffle(this.sequenceList)
+                // } else {
+                //     list = this.sequenceList
+                // }
                 this._resetCurrentIndex(list)
                 this.setPlaylist(list)
             },
+
+            /**
+             * 拖动进度条
+             * @param percent:拖动进度
+             */
             percentChangeEnd(percent) {
                 const currentTime = this.duration * percent
                 this.$refs.audio.currentTime = currentTime
@@ -218,9 +251,15 @@
                     this.currentLyric.seek(currentTime * 1000)
                 }
             },
+
+            /**
+             * 音频播放进度
+             */
             updateTime(e) {
                 this.currentTime = e.target.currentTime
             },
+
+
             format(interval) {
                 interval = interval | 0
                 let minute = interval / 60 | 0
@@ -230,6 +269,10 @@
                 }
                 return minute + ':' + second
             },
+
+            /**
+             * 播放完一首音乐
+             */
             end() {
                 if (this.mode === playMode.loop) {
                     this.loop()
@@ -237,22 +280,36 @@
                     this.next()
                 }
             },
+
+            /**
+             * 循环播放
+             */
             loop() {
                 this.$refs.audio.currentTime = 0
-                setTimeout(() => {
-                    this.$refs.audio.play()
-                }, 100)
+                this.setPlayingState(true)
+                this.$refs.audio.play()
                 if (this.currentLyric) {
                     this.currentLyric.seek()
                 }
             },
+
+            /**
+             * audio错误状态
+             */
             error() {
                 this.songReady = true
             },
+            /**
+             * audio准备好播放
+             */
             ready() {
                 this.songReady = true
                 this.savePlayHistory(this.currentSong)
             },
+
+            /**
+             * 下一曲
+             */
             next() {
                 if (!this.songReady) {
                     return
@@ -267,12 +324,16 @@
                     }
                     this.setCurrentIndex(index)
                     // this.$refs.audio.play()
-                    if (!this.playing) {
+                    if (this.playing) {
                         this.togglePlaying()
                     }
                 }
                 this.songReady = false
             },
+
+            /**
+             * 上一曲
+             */
             prev() {
                 if (!this.songReady) {
                     return
@@ -288,13 +349,18 @@
                 }
                 this.songReady = false
             },
+
+            /**
+             * 关掉播放界面
+             */
             back() {
                 this.setFullScreen(false)
                 this.currentShow = 'cd'
             },
-            open() {
-                this.setFullScreen(true)
-            },
+
+            /**
+             * 播放与暂停
+             */
             togglePlaying() {
                 const audio = this.$refs.audio
                 this.setPlayingState(!this.playing)
@@ -303,18 +369,45 @@
                     this.currentLyric.togglePlay()
                 }
             },
+
+            /**
+             * 获取歌曲详细
+             * @param id:歌曲id
+             */
             _getSong(id) {
                 api.songUrlFn(id).then((res) => {
                     this.url = res.data.data[0].url
                 })
-                // console.log(this.currentSong.image);
-                // this.currentThumb(this.currentSong.image)
+                this.setCurrentThumb(this.currentSong.image)
             },
-            _getComment(id,limt) {
-                api.songCommentFn(id,limt).then(res => {
-                    console.log(res);
+
+            /**
+             * 获取歌曲评论
+             * @param id:歌曲id
+             * @param limt: 取出数量
+             */
+            _getComment(id, limt) {
+                api.songCommentFn(id, limt).then(res => {
+                    this.commentData = res.data
+                    // console.log(res.data);
+                    let totalTmp = res.data.total
+                    if (totalTmp > 100000) {
+                        this.total = "10w+"
+                    } else if (totalTmp > 10000) {
+                        this.total = "1w+"
+                    } else if (totalTmp > 1000) {
+                        this.total = "999+"
+                    } else {
+                        this.total = totalTmp.toString()
+                    }
+
                 })
             },
+
+            /**
+             * 获取歌词
+             * @param id:歌曲id
+             */
             _getLyric(id) {
                 if (this.currentLyric) {
                     this.currentLyric.stop()
@@ -334,12 +427,20 @@
                     this.currentLineNum = 0
                 })
             },
+
+            /**
+             * 重置播放列表
+             */
             _resetCurrentIndex(list) {
                 let index = list.findIndex((item) => {
                     return item.id === this.currentSong.id
                 })
                 this.setCurrentIndex(index)
             },
+
+            /**
+             * 歌词滚动
+             */
             handleLyric({lineNum, txt}) {
                 this.currentLineNum = lineNum
                 if (lineNum > 5) {
@@ -349,6 +450,35 @@
                     this.$refs.lyricList.scrollTo(0, 0, 1000)
                 }
             },
+
+            /**
+             *  下载歌曲
+             */
+            downLoad() {
+                Dialog.confirm({
+                    message: "确定要下载 “ " + this.currentSong.name + " ” 吗？"
+                }).then(() => {
+                    var FileSaver = require('file-saver');
+                    FileSaver.saveAs(this.url)
+                })
+            },
+
+            /**
+             * 展示评论页面
+             */
+            showComment() {
+                this.$refs.comment.show()
+            },
+
+
+            /**
+             * 打开正在播放列表
+             */
+            showPlaylist() {
+                this.$refs.playlist.show()
+            },
+
+
             ...mapMutations({
                 setFullScreen: 'SET_FULL_SCREEN',
                 setPlayingState: 'SET_PLAYING_STATE',
@@ -389,12 +519,14 @@
                 background-repeat: no-repeat;
                 background-size: cover;
                 background-position: 50%;
+                transition-duration: .5s;
                 -webkit-filter: blur(20px);
                 filter: blur(20px);
                 -webkit-transform: scale(1.5);
                 -ms-transform: scale(1.5);
                 transform: scale(1.5);
                 z-index: -1;
+
 
                 &::before {
                     position: absolute;
@@ -463,8 +595,9 @@
                     vertical-align: top;
                     position: relative;
                     width: 100%;
-                    height: 0;
-                    padding-top: 80%;
+                    height: 100%;
+                    overflow: hidden;
+                    /*padding-top: 80%;*/
 
                     &.middleL-enter-active, &.middleL-leave-active {
                         transition: all 0.3s
@@ -474,19 +607,41 @@
                         opacity: 0
                     }
 
+                    .cd-contro {
+                        position: absolute;
+                        left: 46%;
+                        /*top: -1.2rem;*/
+                        top: 0;
+                        z-index: 1;
+                        transform-origin:.2rem top;
+                        transform: rotate(0);
+                        transition-duration: .5s;
+
+                        &.pause{
+                            transform: rotate(-25deg);
+                        }
+
+                        img {
+                            display: block;
+                            width: 2rem;
+                        }
+                    }
+
                     .cd-wrapper {
                         position: absolute;
                         left: 10%;
-                        top: 0;
+                        top: 15%;
                         width: 80%;
-                        height: 100%;
+                        /*height: 100%;*/
 
                         .cd {
                             width: 100%;
                             height: 100%;
                             box-sizing: border-box;
-                            border: 15px solid rgba(255, 255, 255, 0.1);
+                            /*border: 15px solid rgba(255, 255, 255, 0.1);*/
                             border-radius: 50%;
+                            background: url("../../assets/images/cd_bg.png") center/cover no-repeat;
+                            padding: 55px;
 
                             &.play {
                                 animation: rotate 20s linear infinite;
@@ -497,9 +652,9 @@
                             }
 
                             .image {
-                                position: absolute;
-                                left: 0;
-                                top: 0;
+                                /*position: absolute;*/
+                                /*left: 0;*/
+                                /*top: 0;*/
                                 width: 100%;
                                 height: 100%;
                                 border-radius: 50%;
@@ -623,45 +778,6 @@
 
                         .icon-like {
                         }
-                    }
-                }
-            }
-
-        }
-
-        .mini-player {
-            display: flex;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            right: 10px;
-            z-index: 180;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.85);
-
-
-            .icon {
-                flex: 0 0 32px;
-
-                /*padding: 0 10px 0 20px;*/
-
-                .van-circle {
-                    padding: 3px;
-                }
-
-                img {
-                    border-radius: 50%;
-                    width: 100%;
-                    height: 100%;
-                    display: block;
-                    margin: 0 auto;
-
-                    &.play {
-                        animation: rotate 10s linear infinite;
-                    }
-
-                    &.pause {
-                        animation-play-state: paused;
                     }
                 }
             }

@@ -22,6 +22,7 @@
         data() {
             return {
                 id: 0,
+                total: 0,
                 list: []
             }
         },
@@ -32,6 +33,22 @@
             selectSong(item) {
                 this.insertSong(item)
             },
+
+            _getRecommendSheetList() {
+                api.recommendSheetListFn(this.$route.query.id).then(res => {
+                    let tmplist = res.data.playlist.tracks.map((item) => {
+                        return {
+                            id: item.id,
+                            singer: this._singerName(item.ar),
+                            name: item.name,
+                            album: item.al.name,
+                            image: item.al.picUrl,
+                        }
+                    })
+                    this.list = tmplist
+                })
+            },
+
             _singerName(arr) {
                 let name = []
                 name = arr.map(function (item) {
@@ -39,23 +56,8 @@
                 })
                 return name.join('/')
             },
-            _getRecommendSheetList() {
-                api.recommendSheetListFn(this.$route.query.id).then(res => {
-                    // this.list = res.data.playlist.tracks
-                    console.log(res.data.playlist.tracks);
-                    let tmplist = res.data.playlist.tracks.map((item) => {
-                        return {
-                            id: item.id,
-                            singer: item.ar[0].name,
-                            name: item.name,
-                            album: item.al.name,
-                            image: item.al.picUrl
-                        }
-                    })
-                    console.log(tmplist);
-                    this.list = tmplist
-                })
-            },
+
+
             ...mapActions([
                 'insertSong'
             ])

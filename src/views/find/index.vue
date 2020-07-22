@@ -107,7 +107,8 @@
                                 singer: this._singerName(item.song.artists),
                                 name: item.name,
                                 album: item.song.album.name,
-                                image: item.song.album.picUrl
+                                image: item.song.album.picUrl,
+                                total: this._getComment(item.id)
                             }
                         })
                         list.splice(9)
@@ -118,6 +119,13 @@
                 })
             },
 
+            _getComment(id, limt) {
+                api.songCommentFn(id, limt).then(res => {
+                    return {
+                        total: res.data.total
+                    }
+                })
+            },
             formatCount(val) {
                 if (val > 100000000) {
                     return (val / 100000000).toFixed(2) + "亿"

@@ -1142,7 +1142,7 @@ a:link, a:active, a:visited, a:hover {
 }
 
 html, body, a, input, textarea, *, *::placeholder {
-    /*font-family: 'Noto Sans SC', sans-serif !important;*/
+    font-family: 'Noto Sans SC', sans-serif ;
     /*font-weight: 300;*/
 }
 
