@@ -1,5 +1,5 @@
 <template>
-    <div class="toptab">
+    <div class="toptab" v-if="$route.meta.showTopbar">
         <div class="search">
             <van-search v-model="searchValue" shape="round" placeholder="请输入搜索关键词"/>
         </div>

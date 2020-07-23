@@ -1,5 +1,5 @@
 <template>
-    <div class="tabbar van-hairline--top">
+    <div class="tabbar van-hairline--top" v-if="$route.meta.showTabbar">
         <div class="tabbar-wrap">
             <router-link v-for="(item,index) in tabbarList" :key="index"
                          class="tabbar-item"

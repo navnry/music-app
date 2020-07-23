@@ -1,6 +1,9 @@
-import {playMode} from '@/assets/js/config'
+import {playMode} from '@/utils/config'
 
 const state = {
+    loginState: 0, // 登陆状态，初始值为 0 未登录，登陆成功设置为 1
+    accountUid: 0, // 存取用户 uid
+    level: 0, // 用户等级
     musicList: {},
     singer: {},
     playing: false,//是否正在播放

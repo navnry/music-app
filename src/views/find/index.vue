@@ -60,6 +60,7 @@
         created() {
             this._getRecommendMusic()
             this._getRecommendSheet()
+            console.log(this.$store);
         },
         mounted() {
         },

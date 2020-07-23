@@ -37,6 +37,18 @@ const mutations = {
     [types.SET_CURRENT_THUMB](state, thumb) {
         state.currentThumb = thumb
     },
+
+    // 设置用户登陆状态
+    [types.LOGIN_STATE] (state, num) {
+        state.loginState = num
+    },
+    [types.SET_LEVEL] (state, num) {
+        state.level = num
+    },
+    // 存取用户 uid
+    [types.ACCOUNT_UID] (state, id) {
+        state.accountUid = id
+    },
 }
 
 export default mutations

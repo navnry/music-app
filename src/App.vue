@@ -1,8 +1,10 @@
 <template>
     <div id="app">
         <Topbar/>
-        <router-view class="view-container"/>
-
+        <keep-alive includ="find">
+            <router-view class="view-container"
+                         :class="{'notopbar':!$route.meta.showTopbar,'notabbar':!$route.meta.showTabbar}"/>
+        </keep-alive>
         <player/>
         <Tabbar/>
     </div>
@@ -55,6 +57,14 @@
         overflow-x: hidden;
         padding-bottom: 1.4rem;
         padding-top: 1.1rem;
+
+        &.notopbar {
+            padding-top: 0;
+        }
+
+        &.notabbar {
+            padding-bottom: 0;
+        }
     }
 
 </style>

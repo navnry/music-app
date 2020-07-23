@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import {Toast} from 'vant';
 
+Vue.use(Toast)
+const Login = () => import('@/views/login')
 const Find = () => import('@/views/find')
 const Video = () => import('@/views/video')
 const Mine = () => import('@/views/mine')
@@ -15,40 +18,84 @@ const routes = [
         path: '',
         redirect: '/find'
     },
+
     {
         path: '/find',
         name: 'find',
         component: Find,
+        meta: {
+            title: "发现",
+            requireAuth: true,
+            showTabbar: true,
+            showTopbar: true
+        }
     },
     {
         path: '/video',
         name: 'video',
-        component: Video
+        component: Video,
+        meta: {
+            title: "视频",
+            requireAuth: true,
+            showTabbar: true,
+            showTopbar: true
+        }
     },
     {
         path: '/mine',
         name: 'mine',
-        component: Mine
+        component: Mine,
+        meta: {
+            title: "我的",
+            requireAuth: true,
+            showTabbar: true,
+            showTopbar: false
+        }
     },
     {
         path: '/village',
         name: 'village',
-        component: Village
+        component: Village,
+        meta: {
+            title: "云村",
+            requireAuth: true,
+            showTabbar: true,
+            showTopbar: false
+        }
     },
     {
         path: '/user',
         name: 'user',
-        component: User
+        component: User,
+        meta: {
+            title: "账号",
+            requireAuth: true,
+            showTabbar: true,
+            showTopbar: false
+        }
     },
     {
         path: '/sheetlist',
         name: 'sheetlist',
         component: Sheetlist,
         meta: {
-            full: true
+            title: "列表",
+            requireAuth: true,
+            showTabbar: false,
+            showTopbar: false
         }
     },
-
+    {
+        path: '/login',
+        name: 'login',
+        component: Login,
+        meta: {
+            title: "登录",
+            requireAuth: false,
+            showTabbar: false,
+            showTopbar: false
+        }
+    },
 ]
 
 const router = new VueRouter({
@@ -57,5 +104,48 @@ const router = new VueRouter({
     routes
 })
 
+
+router.beforeEach((to, from, next) => {
+    /* 路由发生变化修改页面meta */
+    if (to.meta.content) {
+        let head = document.getElementsByTagName('head');
+        let meta = document.createElement('meta');
+        meta.content = to.meta.content;
+        head[0].appendChild(meta)
+    }
+    /* 路由发生变化修改页面title */
+    if (to.meta.title) {
+        document.title = to.meta.title;
+    }
+    next()
+
+
+    let loginState = localStorage.getItem("loginState");
+    console.log(localStorage);
+    if (loginState === "1") {
+        // store.state.requireAuth = true
+        next()
+        if (!to.meta.requireAuth) {
+            next({
+                path: '/find'
+            })
+        }
+    } else {
+        if (to.meta.requireAuth) {
+            Toast("您当前暂未登录，请先登录！")
+            next({
+                path: '/login',
+            })
+        } else {
+            next()
+        }
+    }
+
+
+});
+
+router.afterEach(route => {
+    window.scroll(0, 0);
+});
 
 export default router

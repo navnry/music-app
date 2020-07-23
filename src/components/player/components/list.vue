@@ -41,7 +41,7 @@
 <script>
     import Scroll from '@/components/scroll'
     import {mapActions, mapGetters, mapMutations} from 'vuex'
-    import {playMode, shuffle} from '@/assets/js/config'
+    import {playMode, shuffle} from '@/utils/config'
     import {Dialog} from 'vant'
 
     export default {

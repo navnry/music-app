@@ -1,4 +1,5 @@
 import axios from 'axios'
+
 import {
     bannerSwiper,
     perSong,
@@ -7,7 +8,11 @@ import {
     songLyric,
     recommendSheet,
     recommendSheetList,
-    songComment
+    songComment,
+    phoneRegistered,
+    phoneLogin,
+    loginStatus,
+    userDetail
 } from './config'
 // 请求超时时间
 axios.defaults.timeout = 30000
@@ -24,9 +29,52 @@ export default {
     getOnlineTime() {
         return axios.get("http://quan.suning.com/getSysTime.do")
     },
+
+
     /**
-     *
+     * 检测手机号码是否已注册
+     * @param {*} phone 手机号
      */
+    phoneRegisteredFn(phone) {
+        return axios.get(phoneRegistered, {
+            params: {
+                phone
+            }
+        })
+    },
+
+
+
+
+    phoneLoginFn(phone, password) {
+        return axios.get(phoneLogin, {
+            params: {
+                phone: phone || '',
+                password: password || ''
+            }
+        })
+    },
+
+
+    /**
+     * 获取当前登录状态
+     */
+    loginStatusFn() {
+        return axios.get(loginStatus)
+    },
+
+    /**
+     * 登陆后调用此接口 , 传入用户 id, 可以获取用户详情
+     * @param {*} uid 用户id
+     */
+    userDetailFn(uid) {
+        return axios.get(userDetail, {
+            params: {
+                uid
+            }
+        })
+    },
+
     /**
      * 请求发现页面首页轮播图
      */

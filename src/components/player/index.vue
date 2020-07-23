@@ -95,7 +95,7 @@
     import Scroll from '@/components/scroll'
     import {mapGetters, mapMutations, mapActions} from 'vuex'
     import api from '@/api'
-    import {playMode, shuffle} from '@/assets/js/config'
+    import {playMode, shuffle} from '@/utils/config'
     import Lyc from './components/lyc'
     import saveAs from 'file-saver';
     import {Dialog, Toast} from 'vant';
@@ -613,11 +613,11 @@
                         /*top: -1.2rem;*/
                         top: 0;
                         z-index: 1;
-                        transform-origin:.2rem top;
+                        transform-origin: .2rem top;
                         transform: rotate(0);
                         transition-duration: .5s;
 
-                        &.pause{
+                        &.pause {
                             transform: rotate(-25deg);
                         }
 
