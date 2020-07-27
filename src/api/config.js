@@ -21,3 +21,4 @@ export const songUrl = api + '/song/url' // 获取歌曲url
 export const checkSong = api + '/check/music' // 查看歌曲是否可用
 export const songLyric = api + '/lyric' // 获取歌词
 export const songComment = api + '/comment/music' // 获取歌词
+export const songDetail = api + '/song/detail' // 获取歌词

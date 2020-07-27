@@ -1,43 +1,27 @@
 <template>
     <div class="banner">
-        <swiper ref="mySwiper" :options="swiperOptions">
-            <swiper-slide v-for="item in swiperList">
-                <img class="banner-img" :src="item.pic" alt=""/>
-                <span :style="{backgroundColor:item.titleColor}">{{item.typeTitle}}</span>
-            </swiper-slide>
-            <div class="swiper-pagination" slot="pagination"></div>
-        </swiper>
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" v-for="item in swiperList">
+                    <img class="banner-img" :src="item.pic" alt=""/>
+                    <span :style="{backgroundColor:item.titleColor}">{{item.typeTitle}}</span>
+                </div>
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
     </div>
 </template>
 
 <script>
     import api from '@/api'
-    import {Swiper, SwiperSlide, directive} from 'vue-awesome-swiper'
-    import 'swiper/swiper-bundle.css'
+    import Swiper from 'swiper'
+    import 'swiper/swiper-bundle.min.css'
 
     export default {
         name: 'banner',
-        components: {
-            Swiper,
-            SwiperSlide,
-        },
-        directives: {
-            swiper: directive
-        },
         data() {
             return {
                 swiperList: [],
-                swiperOptions: {
-                    speed: 600,
-                    loop: true,
-                    spaceBetween: 24,
-                    autoplay: {
-                        delay: 500
-                    },
-                    pagination: {
-                        el: '.swiper-pagination'
-                    },
-                }
             }
         },
         computed: {
@@ -52,7 +36,21 @@
             getFindSwiperSuc(res) {
                 if (res.status === 200 && res.statusText === 'OK') {
                     res = res.data.banners
-                    this.swiperList = res
+                    this.swiperList = res,
+                        this.$nextTick(() => {
+                            new Swiper(".banner .swiper-container", {
+                                speed: 600,
+                                loop: true,
+                                spaceBetween: 24,
+                                autoplay: {
+                                    delay: 500
+                                },
+                                pagination: {
+                                    el: '.banner .swiper-pagination',
+                                    clickable: true,
+                                },
+                            })
+                        })
                 }
             }
         },

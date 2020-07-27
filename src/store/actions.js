@@ -1,7 +1,6 @@
 // 我们如果在一个动作中多次去改变 mutation 那么往往会封装一个 action
 
 import * as types from './mutation-types'
-import {savePlay} from '@/utils/config'
 
 function findIndex(list, song) {
     return list.findIndex((item) => {
@@ -136,9 +135,9 @@ export default {
      * @param commit
      * @param song
      */
-    savePlayHistory: function ({commit}, song) {
-        commit(types.SET_PLAY_HISTORY, savePlay(song))
-    }
+    // savePlayHistory: function ({commit}, song) {
+    //     commit(types.SET_PLAY_HISTORY, savePlay(song))
+    // }
 
 }
 

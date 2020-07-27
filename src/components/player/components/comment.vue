@@ -6,54 +6,58 @@
                 <div class="title"><p>{{songname}}</p></div>
             </div>
             <div class="content">
-                <div class="wrap">
-                    <h3>热门评论</h3>
-                    <van-skeleton title avatar :loading="loading" :row="3">
-                        <div class="item" v-for="item in commentData.hotComments">
-                            <div class="portrait"><img :src="item.user.avatarUrl" alt=""></div>
-                            <div class="con van-hairline--top">
-                                <div class="info">
-                                    <div class="user">
-                                        <div class="name"><p>{{item.user.nickname}}</p></div>
-                                        <div class="time"><p>{{dateDiff(item.time)}}</p></div>
+                <scroll>
+                    <div class="wrap">
+                        <h3>热门评论</h3>
+                        <van-skeleton title avatar :loading="loading" :row="3">
+                            <div class="item" v-for="item in commentData.hotComments">
+                                <div class="portrait"><img :src="item.user.avatarUrl" alt=""></div>
+                                <div class="con van-hairline--top">
+                                    <div class="info">
+                                        <div class="user">
+                                            <div class="name"><p>{{item.user.nickname}}</p></div>
+                                            <div class="time"><p>{{dateDiff(item.time)}}</p></div>
+                                        </div>
+                                        <div class="likedCount">
+                                            <i class="iconfont icon-zan1"></i>
+                                            <p>{{item.likedCount}}</p>
+                                        </div>
                                     </div>
-                                    <div class="likedCount">
-                                        <i class="iconfont icon-zan1"></i>
-                                        <p>{{item.likedCount}}</p>
-                                    </div>
-                                </div>
 
-                                <div class="desc"><p v-html="item.content"></p></div>
-                            </div>
-                        </div>
-                    </van-skeleton>
-
-                    <h3>最新评论</h3>
-                    <van-skeleton title avatar :loading="loading" :row="3">
-                        <div class="item" v-for="item in commentData.comments">
-                            <div class="portrait"><img :src="item.user.avatarUrl" alt=""></div>
-                            <div class="con van-hairline--top">
-                                <div class="info">
-                                    <div class="user">
-                                        <div class="name"><p>{{item.user.nickname}}</p></div>
-                                        <div class="time"><p>{{dateDiff(item.time)}}</p></div>
-                                    </div>
-                                    <div class="likedCount">
-                                        <i class="iconfont icon-zan1"></i>
-                                        <p>{{item.likedCount}}</p>
-                                    </div>
+                                    <div class="desc"><p v-html="item.content"></p></div>
                                 </div>
-                                <div class="desc"><p>{{item.content}}</p></div>
                             </div>
-                        </div>
-                    </van-skeleton>
-                </div>
+                        </van-skeleton>
+
+                        <h3>最新评论</h3>
+                        <van-skeleton title avatar :loading="loading" :row="3">
+                            <div class="item" v-for="item in commentData.comments">
+                                <div class="portrait"><img :src="item.user.avatarUrl" alt=""></div>
+                                <div class="con van-hairline--top">
+                                    <div class="info">
+                                        <div class="user">
+                                            <div class="name"><p>{{item.user.nickname}}</p></div>
+                                            <div class="time"><p>{{dateDiff(item.time)}}</p></div>
+                                        </div>
+                                        <div class="likedCount">
+                                            <i class="iconfont icon-zan1"></i>
+                                            <p>{{item.likedCount}}</p>
+                                        </div>
+                                    </div>
+                                    <div class="desc"><p>{{item.content}}</p></div>
+                                </div>
+                            </div>
+                        </van-skeleton>
+                    </div>
+                </scroll>
             </div>
         </div>
     </transition>
 </template>
 
 <script>
+    import scroll from "@/components/scroll"
+
     export default {
         name: "comment",
         data() {
@@ -61,6 +65,9 @@
                 commentShow: false,
                 loading: true
             }
+        },
+        components: {
+            scroll
         },
         props: {
             commentData: Object,
@@ -189,7 +196,8 @@
             overflow-x: hidden;
             overflow-y: auto;
 
-            p{}
+            p {
+            }
         }
 
         h3 {
@@ -260,7 +268,7 @@
                         color: #444444;
                         margin-top: 5px;
 
-                        p{
+                        p {
                             white-space: pre-line;
                             line-height: 1.5;
                             color: #666666;

@@ -3,21 +3,23 @@
         <div class="search">
             <van-search v-model="searchValue" shape="round" placeholder="请输入搜索关键词"/>
         </div>
-        <div class="circle" @click.stop="open">
-            <van-circle size=".64rem" color="#C20C0C" :value="this.$store.state.playProgress">
-                <img :class="{'pause': !playing}" :src="this.$store.state.currentThumb">
-            </van-circle>
-        </div>
+<!--        <div class="circle" @click.stop="open">-->
+<!--            <van-circle size=".64rem" color="#C20C0C" :value="this.$store.state.playProgress">-->
+<!--                <img :class="{'pause': !playing}" :src="this.$store.state.currentThumb">-->
+<!--            </van-circle>-->
+<!--        </div>-->
+        <slot name="right"></slot>
     </div>
 </template>
 
 <script>
-    import {mapGetters,mapMutations} from 'vuex'
+    import {mapGetters, mapMutations} from 'vuex'
+
     export default {
         name: "toptab",
-        data(){
-            return{
-                searchValue:''
+        data() {
+            return {
+                searchValue: ''
             }
         },
         computed: {
@@ -25,7 +27,7 @@
                 'playing',
             ])
         },
-        methods:{
+        methods: {
             open() {
                 this.setFullScreen(true)
             },

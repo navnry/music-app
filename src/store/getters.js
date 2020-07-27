@@ -3,7 +3,6 @@ const getters = {
     loginState: state => state.loginState,
     level: state => state.level,
     accountUid: state => state.accountUid,
-
     playing: state => state.playing,
     fullScreen: state => state.fullScreen,
     playlist: state => state.playlist,

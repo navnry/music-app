@@ -149,6 +149,8 @@
                 }
                 if (!this.noLyric) {
                     return '纯音乐，请欣赏'
+                } else {
+
                 }
             },
             ...mapGetters([
@@ -304,7 +306,7 @@
              */
             ready() {
                 this.songReady = true
-                this.savePlayHistory(this.currentSong)
+                // this.savePlayHistory(this.currentSong)
             },
 
             /**
@@ -488,9 +490,6 @@
                 setPlayProgress: 'SET_PALY_PROGRESS',
                 setCurrentThumb: 'SET_CURRENT_THUMB'
             }),
-            ...mapActions([
-                'savePlayHistory'
-            ])
         },
 
     }

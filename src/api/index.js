@@ -12,7 +12,8 @@ import {
     phoneRegistered,
     phoneLogin,
     loginStatus,
-    userDetail
+    userDetail,
+    songDetail
 } from './config'
 // 请求超时时间
 axios.defaults.timeout = 30000
@@ -42,8 +43,6 @@ export default {
             }
         })
     },
-
-
 
 
     phoneLoginFn(phone, password) {
@@ -103,7 +102,8 @@ export default {
     recommendSheetListFn(id) {
         return axios.get(recommendSheetList, {
             params: {
-                id: id
+                id: id,
+                limit: 1000
             }
         })
     },
@@ -155,6 +155,17 @@ export default {
         return axios.get(songLyric, {
             params: {
                 id
+            }
+        })
+    },
+    /**
+     * 传入音乐 id 可获得对应音乐的歌词 ( 不需要登录 )
+     * @param {*} id 歌曲id
+     */
+    songDetailFn(id) {
+        return axios.get(songDetail, {
+            params: {
+                ids:id
             }
         })
     },

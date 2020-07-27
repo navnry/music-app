@@ -1,119 +1,19 @@
-import storage from 'good-storage'
-
-
 export const playMode = {
     sequence: 0,
     loop: 1,
     random: 2
 }
 
-
-const PLAY_KEY = '__play__'
-const PLAY_MAX_LENGTH = 200
-
-function insertArray(arr, val, compare, maxLen) {
-    const index = arr.findIndex(compare)
-    if (index === 0) {
-        return
-    }
-    if (index > 0) {
-        arr.splice(index, 1)
-    }
-    arr.unshift(val)
-    if (maxLen && arr.length > maxLen) {
-        arr.pop()
-    }
-}
-
-function deleteFromArray(arr, compare) {
-    const index = arr.findIndex(compare)
-    if (index > -1) {
-        arr.splice(index, 1)
-    }
-}
-
-export function savePlay(song) {
-    let songs = storage.get(PLAY_KEY, [])
-    insertArray(songs, song, (item) => {
-        return item.id === song.id
-    }, PLAY_MAX_LENGTH)
-    storage.set(PLAY_KEY, songs)
-    return songs
-}
-
-export function loadPlay() {
-    return storage.get(PLAY_KEY, [])
-}
-
-
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min)
-}
-
 export function shuffle(arr) {
     let _arr = arr.slice(0)
     for (let i = 0; i < arr.length; i++) {
-        let j = getRandomInt(0, i)
+        let j = Math.floor(Math.random() * (i - 0 + 1) + 0)
         let t = _arr[i]
         _arr[i] = _arr[j]
         _arr[j] = t
     }
 
     return _arr
-}
-
-
-export default class Song {
-    constructor({id, mid, singer, name, album, duration, image, url, aliaName}) {
-        this.id = id
-        this.singer = singer
-        this.name = name
-        this.album = album
-        this.aliaName = aliaName
-        // this.duration = duration
-        this.image = image
-        // this.url = url
-    }
-}
-
-function singerName(arr) {
-    let name = []
-    name = arr.map(function (item) {
-        return item.name
-    })
-    return name.join('/')
-}
-
-export function createRecommendSong(music) {
-    return new Song({
-        id: music.id,
-        singer: singerName(music.song.artists),
-        name: music.name,
-        // aliaName: music.song.alias.join('-'),
-        album: music.song.album.name,
-        image: music.song.album.picUrl
-    })
-}
-
-export function createRecommendListSong(music) {
-    return new Song({
-        id: music.id,
-        singer: singerName(music.artists),
-        name: music.name,
-        // aliaName: music.song.alias.join('-'),
-        album: music.album.name,
-        image: music.album.picUrl
-    })
-}
-
-export function createSong(music) {
-    return new Song({
-        id: music.id,
-        singer: singerName(music.ar),
-        name: music.name,
-        album: music.al.name,
-        image: music.al.picUrl
-    })
 }
 
 export function debounce(func, delay) {
@@ -129,7 +29,6 @@ export function debounce(func, delay) {
     }
 }
 
-
 export function throttle(fn, delay) {
     let flag = true;
     return (...args) => {
@@ -140,4 +39,37 @@ export function throttle(fn, delay) {
             flag = true;
         }, delay);
     };
+}
+
+// 判断是添加哪种css3类型
+export function prefixStyle(style) {
+    let elementStyle = document.createElement('div').style
+
+    let vendor = (() => {
+        let transformNames = {
+            webkit: 'webkitTransform',
+            Moz: 'MozTransform',
+            O: 'OTransform',
+            ms: 'msTransform',
+            standard: 'transform'
+        }
+
+        for (let key in transformNames) {
+            if (elementStyle[transformNames[key]] !== undefined) {
+                return key
+            }
+        }
+
+        return false
+    })()
+
+    if (vendor === false) {
+        return false
+    }
+
+    if (vendor === 'standard') {
+        return style
+    }
+
+    return vendor + style.charAt(0).toUpperCase() + style.substr(1)
 }

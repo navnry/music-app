@@ -1,19 +1,15 @@
 <template>
-    <div class="b-scroll" ref="wrapper">
+    <div class="scroll" ref="wrapper">
         <slot></slot>
     </div>
 </template>
 
 <script>
-    import BScroll from 'better-scroll'
+    import BScroll from 'better-scroll';
 
     export default {
-        name: 'Bscroll',
-        data() {
-            return {
-                scroll: null
-            }
-        },
+        componentName: 'scroll',
+        components: {},
         props: {
             /**
              * 1 滚动的时候会派发scroll事件，会截流。
@@ -49,27 +45,27 @@
              * 列表的数据
              */
             data: {
-                type: Array | Object,
+                type: Array,
                 default: null
             },
             /**
              * 是否派发滚动到底部的事件，用于上拉加载
              */
-            pullup: {
+            pullingUp: {
                 type: Boolean,
                 default: false
             },
             /**
              * 是否派发顶部下拉的事件，用于下拉刷新
              */
-            pulldown: {
+            pullingDown: {
                 type: Boolean,
                 default: false
             },
             /**
              * 是否派发列表滚动开始的事件
              */
-            beforeScroll: {
+            beforeScrollStart: {
                 type: Boolean,
                 default: false
             },
@@ -83,13 +79,10 @@
         },
         mounted() {
             // 保证在DOM渲染完毕后初始化better-scroll
-            this.$nextTick(() => {
-                setTimeout(() => {
-                    this._initScroll()
-                }, 20)
-            })
+            setTimeout(() => {
+                this._initScroll()
+            }, 20)
         },
-        computed: {},
         methods: {
             _initScroll() {
                 if (!this.$refs.wrapper) {
@@ -99,41 +92,40 @@
                 this.scroll = new BScroll(this.$refs.wrapper, {
                     probeType: this.probeType,
                     click: this.click,
-                    scrollX: this.scrollX,
-                    scrollbar: false
+                    scrollX: this.scrollX
                 })
 
                 // 是否派发滚动事件
                 if (this.listenScroll) {
-                    this.scroll.on('scroll', pos => {
-                        this.$emit('scroll', pos)
+                    let me = this
+                    this.scroll.on('scroll', (pos) => {
+                        me.$emit('scroll', pos)
                     })
                 }
 
-                // 是否派发滚动到底部事件，用于上拉加载
-                if (this.pullup) {
-                    this.scroll.on('scrollEnd', () => {
-                        // 滚动到底部
-                        if (this.scroll.y <= this.scroll.maxScrollY + 50) {
-                            this.$emit('scrollToEnd')
-                        }
-                    })
-                }
 
                 // 是否派发顶部下拉事件，用于下拉刷新
-                if (this.pulldown) {
-                    this.scroll.on('touchend', pos => {
+                if (this.pullingDown) {
+                    this.scroll.on('touchEnd', (pos) => {
                         // 下拉动作
                         if (pos.y > 50) {
-                            this.$emit('pulldown')
+                            this.$emit('pullingDown')
                         }
                     })
                 }
-
+                // 是否派发滚动到底部事件，用于上拉加载
+                if (this.pullingUp) {
+                    this.scroll.on('scrollEnd', () => {
+                        // 滚动到底部
+                        if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
+                            this.$emit('pullingUp')
+                        }
+                    })
+                }
                 // 是否派发列表滚动开始的事件
-                if (this.beforeScroll) {
+                if (this.beforeScrollStart) {
                     this.scroll.on('beforeScrollStart', () => {
-                        this.$emit('beforeScroll')
+                        this.$emit('beforeScrollStart')
                     })
                 }
             },
@@ -170,8 +162,36 @@
 </script>
 
 <style scoped lang="less">
-    .b-scroll {
+    .scroll {
         width: 100%;
         height: 100%;
+        /*overflow: scroll;*/
+        position: relative;
+
+    }
+
+    .list-wrapper {
+        width: 100%;
+        min-height: 101%;
+    }
+
+    .pulldown-wrapper {
+        width: 100%;
+        height: 50px;
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        left: 0;
+        top: -50px;
+        z-index: 100;
+    }
+
+    .pullup-wrapper {
+        width: 100%;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 </style>
