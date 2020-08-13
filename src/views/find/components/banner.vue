@@ -3,7 +3,10 @@
         <div class="swiper-container">
             <div class="swiper-wrapper">
                 <div class="swiper-slide" v-for="item in swiperList">
-                    <img class="banner-img" :src="item.pic" alt=""/>
+<!--                    <img class="banner-img" :src="item.pic" alt=""/>-->
+                    <van-image :src="item.pic">
+                        <template v-slot:loading></template>
+                    </van-image>
                     <span :style="{backgroundColor:item.titleColor}">{{item.typeTitle}}</span>
                 </div>
             </div>
@@ -15,7 +18,7 @@
 <script>
     import api from '@/api'
     import Swiper from 'swiper'
-    import 'swiper/swiper-bundle.min.css'
+    import 'swiper/dist/css/swiper.min.css'
 
     export default {
         name: 'banner',
@@ -39,11 +42,12 @@
                     this.swiperList = res,
                         this.$nextTick(() => {
                             new Swiper(".banner .swiper-container", {
-                                speed: 600,
+                                speed: 800,
                                 loop: true,
                                 spaceBetween: 24,
                                 autoplay: {
-                                    delay: 500
+                                    delay: 3000,
+                                    disableOnInteraction:false
                                 },
                                 pagination: {
                                     el: '.banner .swiper-pagination',
@@ -64,7 +68,7 @@
     .banner {
 
 
-        .swiper-container {
+        /deep/ .swiper-container {
             padding: 0 10px;
 
             .swiper-slide {
@@ -72,11 +76,12 @@
                 border-radius: 8px;
                 overflow: hidden;
                 position: relative;
+                font-size: 0;
 
                 img {
                     display: block;
                     width: 100%;
-
+                    border-radius: 8px;
                 }
 
                 span {

@@ -180,13 +180,20 @@
                 this._getLyric(this.currentSong.id)
                 this._getComment(this.currentSong.id, 10)
                 this.$refs.audio.src = newUrl
-                let stop = setInterval(() => {
-                    this.duration = this.$refs.audio.duration
-                    if (this.duration) {
-                        clearInterval(stop)
-                    }
-                }, 150)
-                this.setPlayingState(true)
+                console.log(newUrl);
+                if (newUrl == null) {
+                    console.log("权限不足")
+                    return
+                } else {
+                    let stop = setInterval(() => {
+                        this.duration = this.$refs.audio.duration
+                        if (this.duration) {
+                            clearInterval(stop)
+                        }
+                    }, 150)
+                    this.setPlayingState(true)
+                }
+
             },
             currentTime() {
                 this.percent = (this.currentTime / this.duration) * 100
@@ -228,12 +235,6 @@
                     Toast('已切换为随机播放！');
                     list = shuffle(this.sequenceList)
                 }
-
-                // if (mode === playMode.random) {
-                //     list = shuffle(this.sequenceList)
-                // } else {
-                //     list = this.sequenceList
-                // }
                 this._resetCurrentIndex(list)
                 this.setPlaylist(list)
             },
@@ -378,6 +379,7 @@
              */
             _getSong(id) {
                 api.songUrlFn(id).then((res) => {
+                    // console.log(res.data.data);
                     this.url = res.data.data[0].url
                 })
                 this.setCurrentThumb(this.currentSong.image)

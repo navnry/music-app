@@ -30,7 +30,6 @@ const mutations = {
         state.currentThumb = thumb
     },
 
-
     [types.LOGIN_STATE] (state, num) {
         state.loginState = num
     },

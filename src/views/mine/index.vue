@@ -1,114 +1,108 @@
 <template>
     <div class="mine">
-        <m-scroll :data="recommendSheet"
-                  :pullingDown="pullingDown"
-                  @pullingDown="loadData"
-                  :pullingUp="pullingUp"
-                  @pullingUp="pullingData"
+        <van-list
+                v-model="loading"
+                :finished="finished"
+                :immediate-check="false"
+                finished-text="没有更多了"
+                @load="onLoad"
+                :offset="10"
         >
-            <ul class="content">
-                <li v-for="item in recommendSheet">
-                    <img :src="item.picUrl" alt="">
-                    <p> {{item.name}}</p>
-                </li>
-            </ul>
-            <div class="loading-wrapper"></div>
-        </m-scroll>
+            <van-cell class="mlist" v-for="item in itemList" :key="item.id">
+                <div class="pic"><img :src="item.picUrl" alt=""></div>
+                <div class="content">
+                    <div class="name"> {{item.name}}</div>
+                    <div class="desc">{{item.copywriter}}</div>
+                </div>
+            </van-cell>
+        </van-list>
+
+        <div class="no-data" v-if="!this.itemList">
+            <!--            <img src="../assets/images/null.png" alt="暂无记录" class="img"/>-->
+        </div>
     </div>
 </template>
+
 <script>
-    import scroll from '@/components/scroll/index2'
-    import api from '@/api'
-    import {Toast} from 'vant'
+    import api from "@/api"
 
     export default {
-        components: {
-            'm-scroll': scroll
+        name: "mine",
+        created() {
+            //创建组件时，加载第1页数据
+            this.getroadList();
         },
+
         data() {
             return {
-                recommendSheet: [],
-                pullingDown: true,
-                pullingUp: true,
-                count: 0,
-                isLoading: false,
-                limit: 7
-            }
+                loading: false,
+                finished: false,
+                page: 1,//请求第几页
+                pageSize: 10,//每页请求的数量
+                total: 0,//总共的数据条数
+                itemList: [],
+            };
         },
-        created() {
-            // this.loadData()
-        },
-        mounted() {
-            this._getRecommendSheet(this.limit)
-        },
-        methods: {
-            loadData() {
-                // console.log("a");
 
-            },
-            pullingData() {
-                this.limit += 7
-                Toast.loading({
-                    duration: 0,
-                    forbidClick: true,
-                    message: '加载中',
-                })
-                setTimeout(() => {
-                    this._getRecommendSheet(this.limit)
-                    Toast.clear();
-                }, 2000)
-            },
-            _getRecommendSheet(limit) {
-                api.recommendSheetFn(limit).then(res => {
+        methods: {
+            getroadList() {
+                let params = {
+                    page: this.page,
+                    pageSize: this.pageSize
+                };
+
+                //this.$api.pay.schedule(params)是我自己封装的get请求接口
+
+                api.recommendSheetFn(14).then(res => {
                     if (res.status === 200) {
-                        this.recommendSheet = res.data.result
-                        console.log(this.recommendSheet);
+                        console.log(res.data.result);
+
+                        this.itemList = res.data.result
+                        let rows = res.data.rows; //请求返回当页的列表
+                        this.loading = false;
+                        this.total = res.data.total;
+
+                        if (rows == null || rows.length === 0) {
+                            // 加载结束
+                            this.finished = true;
+                            return;
+                        }
+
+                        // 将新数据与老数据进行合并
+                        this.itemList = this.itemList.concat(rows);
+
+                        //如果列表数据条数>=总条数，不再触发滚动加载
+                        if (this.itemList.length >= this.total) {
+                            this.finished = true;
+                        }
                     }
                 })
             },
 
+            //滚动加载时触发，list组件定义的方法
+            onLoad() {
+                this.page++;
+                this.getroadList();
+            }
         }
-    }
+    };
 </script>
 <style scoped lang="less">
-    ul {
-        white-space: nowrap;
-        overflow: auto;
-    }
-
-    li {
-        /*display: inline-block;*/
-        font-size: 12px;
-        /*line-height: 3;*/
-        /*text-align: center;*/
-        /*width: 100px;*/
-        height: 100px;
-        /*text-align: center;*/
-        /*line-height: 100px;*/
+    .mlist {
         display: flex;
-        align-items: center;
-        padding: 0 12px;
+flex-wrap: nowrap;
+        .pic {
+            width: 2rem;
+            height: 2rem;
 
-        &:nth-child(1n) {
-            background-color: #aaa;
+            img {
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
         }
 
-        &:nth-child(2n) {
-            background-color: #bbb;
-        }
-
-        &:nth-child(3n) {
-            background-color: #ccc;
-        }
-
-        img {
-            width: 50px;
-            height: 50px;
-            display: block;
-            margin-right: 10px;
-        }
-
-        p {
+        .content {
             flex: 1;
         }
     }

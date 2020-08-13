@@ -1,14 +1,16 @@
 <template>
     <div id="app">
         <Topbar>
-
-            <div class="circle" v-if="$route.name=='find'" slot="right">
-                <van-circle size=".64rem" color="#C20C0C" :value="this.$store.state.playProgress">
+            <div class="circle" @click.stop="open" v-if="$route.name=='find'" slot="right">
+                <van-circle size=".64rem" color="#C20C0C"  :value="this.$store.state.playProgress">
                     <img :class="{'pause': !playing}" :src="this.$store.state.currentThumb">
                 </van-circle>
             </div>
-            <div v-if="$route.name=='video'" slot="right">
-                其他
+            <div class="circle" v-if="$route.name=='video'" slot="right">
+<!--                <van-icon name="https://b.yzcdn.cn/vant/icon-demo-1126.png" />-->
+                <van-circle size=".64rem" color="#C20C0C"  :value="this.$store.state.playProgress">
+                    <img :class="{'pause': !playing}" :src="this.$store.state.currentThumb">
+                </van-circle>
             </div>
         </Topbar>
 <!--        <keep-alive includ="find">-->
@@ -50,7 +52,15 @@
     }
 </script>
 <style lang="less">
-    @import "//at.alicdn.com/t/font_1934153_swfdpazxop.css";
+    /*@import "//at.alicdn.com/t/font_1934153_swfdpazxop.css";*/
+    @keyframes rotate {
+        0% {
+            transform: rotate(0);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
 
     html, body {
         width: 100%;

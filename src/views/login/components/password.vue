@@ -8,12 +8,11 @@
                 </div>
             </div>
             <div>
-                手机号码是{{phoneNumber}}
-                <div v-show="phoneIsRegister">
+                <div class="towrap" v-show="phoneIsRegister">
                     <van-field v-model="passwords" type="password" label="密码"/>
                     <van-button round class="btn" block text="立即登录" color="#d43c33" @click="loginups"/>
                 </div>
-                <div v-show="!phoneIsRegister">
+                <div class="towrap" v-show="!phoneIsRegister">
                     <van-field
                             v-model="sms"
                             center
@@ -35,6 +34,7 @@
 
 <script>
     import api from "@/api"
+    import {Toast} from 'vant';
 
     export default {
         name: "password",
@@ -45,9 +45,17 @@
                 passwords: ''
             }
         },
+        components: {
+            Toast
+        },
         props: {
             phoneIsRegister: Boolean,
             phoneNumber: 0
+        },
+        mounted() {
+            api.loginStatusFn().then(res => {
+                // console.log(res);
+            })
         },
         methods: {
             show() {
@@ -63,51 +71,52 @@
             /**
              * 登录成功
              */
-            success () {
+            success() {
                 // loading 样式隐藏
                 // this.LoadingEnd()
                 // 存取登陆状态
-                this._getLoginState()
+
+
             },
 
             _isSure(phone, pwd) {
-                api.phoneLoginFn(phone, pwd)
-                    .then(res => {
-                        // console.log(res)
-                        if (res.data.code === 200) {
-                            this.success()
-                        } else {
-
-                        }
-                    })
+                api.phoneLoginFn(phone, pwd).then(res => {
+                    // console.log(res)
+                    if (res.data.code === 200) {
+                        Toast("登录成功")
+                        this.$nextTick(() => {
+                            this._getLoginState()
+                        })
+                    } else {
+                        Toast("用户名或密码错误！")
+                    }
+                })
             },
             _getLoginState() {
-                api.loginStatusFn()
-                    .then(res => {
-                        // 存取用户 id
-                        let userId = res.data.profile.userId
-                        if (res.data.code === 200) {
-                            // 存取用户信息
-                            let accountInfo = res.data.profile
-                            // 成功登陆
-                            // 修改状态为 1
-                            this.$store.commit('LOGIN_STATE', 1)
-                            // Vuex在用户刷新的时候loginState会回到默认值false
-                            // 所以我们需要用到HTML5储存
-                            // 我们设置一个名为loginState
-                            localStorage.setItem('loginState', 1)
-                            // 存入用户头像 昵称
-                            localStorage.setItem('avatarUrl', accountInfo.avatarUrl)
-                            localStorage.setItem('nickname', accountInfo.nickname)
-                            // 存取用户 uid信息
-                            this.$store.commit('ACCOUNT_UID', userId)
-                            localStorage.setItem('accountUid', userId)
-                            this._getUserDetail(userId)
-                        }
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    })
+                api.loginStatusFn().then(res => {
+                    // 存取用户 id
+                    let userId = res.data.profile.userId
+                    if (res.data.code === 200) {
+                        // 存取用户信息
+                        let accountInfo = res.data.profile
+                        // 成功登陆
+                        // 修改状态为 1
+                        this.$store.commit('LOGIN_STATE', 1)
+                        // Vuex在用户刷新的时候loginState会回到默认值false
+                        // 所以我们需要用到HTML5储存
+                        // 我们设置一个名为loginState
+                        localStorage.setItem('loginState', 1)
+                        // 存入用户头像 昵称
+                        localStorage.setItem('avatarUrl', accountInfo.avatarUrl)
+                        localStorage.setItem('nickname', accountInfo.nickname)
+                        // 存取用户 uid信息
+                        this.$store.commit('ACCOUNT_UID', userId)
+                        localStorage.setItem('accountUid', userId)
+                        this._getUserDetail(userId)
+                    }
+                }).catch(err => {
+                    console.log(err)
+                })
             },
 
             /**
@@ -117,18 +126,19 @@
              * 刷新页面
              */
             _getUserDetail(uid) {
-                api.userDetailFn(uid)
-                    .then(res => {
-                        const {data} = res
-                        if (data.code === 200) {
-                            this.$store.commit('SET_LEVEL', data.level)
-                            localStorage.setItem('level', data.level)
-                            // 跳转到发现页面
+                api.userDetailFn(uid).then(res => {
+                    const data = res.data
+                    if (res.status === 200) {
+                        this.$store.commit('SET_LEVEL', data.level)
+                        localStorage.setItem('level', data.level)
+                        // 跳转到发现页面
+                        setTimeout(() => {
                             this.$router.push({path: '/find'})
-                            console.log('跳转了')
-                            // location.reload()
-                        }
-                    })
+                        }, 1000)
+                        console.log('跳转了')
+                        // location.reload()
+                    }
+                })
             },
 
 
@@ -160,6 +170,10 @@
                     margin-right: 20px;
                 }
             }
+        }
+
+        .towrap {
+            padding: 0 12px;
         }
     }
 </style>

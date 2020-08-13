@@ -4,6 +4,7 @@ import router from './router'
 import store from './store'
 import "@/utils/rem.config" //rem适配
 import "@/assets/styles/base.css" //样式重置
+import "@/assets/iconfont/iconfont.css" //样式重置
 import Vant from 'vant';
 import 'vant/lib/index.css';
 import {Lazyload} from 'vant';
@@ -11,7 +12,7 @@ import {Lazyload} from 'vant';
 
 Vue.use(Vant);
 Vue.use(Lazyload, {
-    loading: './assets/images/icon_163.png',
+    loading: require('./assets/images/cd_bg.png')
 });
 
 Vue.config.productionTip = false

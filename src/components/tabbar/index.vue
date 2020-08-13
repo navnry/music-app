@@ -1,5 +1,5 @@
 <template>
-    <div class="tabbar van-hairline--top" v-if="$route.meta.showTabbar">
+    <div class="tabbar" v-if="$route.meta.showTabbar">
         <div class="tabbar-wrap">
             <router-link v-for="(item,index) in tabbarList" :key="index"
                          class="tabbar-item"
@@ -42,7 +42,7 @@
         bottom: 0px;
         left: 0px;
         overflow: hidden;
-        padding: .15rem 0;
+
         z-index: 9;
 
 
@@ -54,6 +54,7 @@
             justify-content: center;
             align-items: center;
             position: relative;
+            padding: .15rem 0;
             z-index: 0;
 
             &::before {
@@ -63,9 +64,8 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: #eeeeee;
-                transform: scale(5);
-                filter: blur(10px) contrast(1);
+                background: hsla(0, 0%, 100%, .6);
+                backdrop-filter: blur(10px);
                 z-index: -1;
             }
 

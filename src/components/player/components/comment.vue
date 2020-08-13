@@ -193,8 +193,7 @@
             height: calc(100% - 1rem);
             position: relative;
             top: 1rem;
-            overflow-x: hidden;
-            overflow-y: auto;
+            overflow: hidden;
 
             p {
             }

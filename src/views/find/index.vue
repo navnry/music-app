@@ -1,5 +1,4 @@
 <template>
-
     <div class="find" ref="recommend">
         <scroll @pulldown="refresh" :pulldown="true">
             <div class="wrap">
@@ -10,7 +9,10 @@
                     <div class="wrap" ref="recommendSong">
                         <div class="item" v-for="item in recommendMusic" :key="item.id" @click="selectSong(item)">
                             <div class="pic">
-                                <img :src="item.image" v-lazy="item.image">
+                                <!--                                <img :src="item.image" v-lazy="item.image">-->
+                                <van-image :src="item.image">
+                                    <template v-slot:loading></template>
+                                </van-image>
                             </div>
                             <div class="text">
                                 <p class="name">{{item.name}}</p>
@@ -67,7 +69,7 @@
             ])
         },
         methods: {
-            refresh(){
+            refresh() {
                 console.log(1);
             },
             open() {

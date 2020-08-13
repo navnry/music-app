@@ -17,16 +17,16 @@
             <div class="sheet-desc">
                 <div class="wrap">
                     <div class="pic">
-                        <img :src="sheetInfo.coverImgUrl">
+                        <van-image :src="sheetInfo.coverImgUrl">
+                            <template v-slot:loading></template>
+                        </van-image>
                     </div>
                     <div class="con">
                         <div class="name">{{sheetInfo.name}}</div>
-<!--                        <div class="user">-->
-
-<!--                            &lt;!&ndash;                            {{sheetInfo.creator.nickname}}&ndash;&gt;-->
-<!--                            <img :src="sheetInfo.creator.avatarUrl" alt="">-->
-<!--                            <span>{{sheetInfo.creator.nickname}}</span>-->
-<!--                        </div>-->
+                        <div class="user">
+                            <!--                            <img :src="sheetInfo.creator.avatarUrl" alt="">-->
+                            <!--                            <span>{{sheetInfo.creator.nickname}}</span>-->
+                        </div>
                         <div class="desc">
                             <p>{{sheetInfo.description}}</p>
                         </div>
@@ -35,7 +35,7 @@
             </div>
         </div>
         <div class="bg-layer" ref="layer">
-            <div>播放全部</div>
+            <div>播放全部（{{list.length}}首）</div>
         </div>
 
         <scroll
@@ -45,13 +45,21 @@
                 :listenScroll="true"
                 @scroll="onScroll"
         >
+
             <div class="song-list">
                 <div class="wrap">
-                    <div class="item" v-for="(item,index) in list" @click="selectSong(item)">
+                    <van-loading v-show="loaded" vertical>加载中...</van-loading>
+                    <div class="item" v-for="(item,index) in list" @click="selectSong(item)"
+                         :class="{disable:item.url==null}">
                         <div class="order">{{index+1}}</div>
                         <div class="con">
                             <div class="name"><p>{{ item.name}}</p></div>
-                            <div class="singger"><p>{{item.singer}}-{{item.album}}</p></div>
+                            <div class="singger">
+                                <p>
+                                    <span v-if="item.url==null"><i class="iconfont icon-VIP"></i></span>
+                                    <!--                                    <span v-if="item.br>12800"><i class="iconfont icon-dujia"></i></span>-->
+                                    {{item.singer}}-{{item.album}}</p>
+                            </div>
                         </div>
                         <div class="icon"></div>
                     </div>
@@ -80,7 +88,8 @@
                 total: 0,
                 sheetInfo: {},
                 list: [],
-                trackIds: []
+                trackIds: [],
+                loaded: true
             }
         },
 
@@ -121,11 +130,9 @@
                     let trackIds = res.data.playlist.trackIds.map(item => {
                         return item.id
                     })
-                    setTimeout(() => {
-                        this._getAllList(trackIds)
-                        console.log(sheetInfo);
-                        this.sheetInfo = sheetInfo
-                    }, 200)
+                    this._getAllList(trackIds)
+                    // console.log(sheetInfo);
+                    this.sheetInfo = sheetInfo
                 })
             },
 
@@ -136,11 +143,13 @@
                 })
                 return name.join('/')
             },
+            _getSong(id) {
+                return api.songUrlFn(id)
+            },
 
             _getAllList(arr) {
                 api.songDetailFn(arr.toString()).then(res => {
-                    // console.log(res.data.songs);
-                    let tmplist = res.data.songs.map((item) => {
+                    let songList = res.data.songs.map((item) => {
                         return {
                             id: item.id,
                             singer: this._singerName(item.ar),
@@ -149,7 +158,23 @@
                             image: item.al.picUrl,
                         }
                     })
-                    this.list = tmplist
+                    let tmplist = res.data.songs.map(item => {
+                        return this._getSong(item.id);
+                    })
+                    Promise.all(tmplist).then(res => {
+                        console.log(res);
+                        songList = songList.map((item, index) => {
+                            item.url = res[index].data.data[0].url
+                            item.payed = res[index].data.data[0].payed
+                            item.br = res[index].data.data[0].br
+                            return item
+                        })
+                        console.log(songList);
+                        this.list = songList
+                        this.$nextTick(() => {
+                            this.loaded = false
+                        })
+                    })
                 })
             },
 
@@ -277,6 +302,7 @@
                         margin-right: 12px;
                         border-radius: 8px;
                         overflow: hidden;
+
                         img {
                             display: block;
                             width: 100%;
@@ -293,6 +319,7 @@
                             display: flex;
                             align-items: center;
                             padding: 10px 0;
+
                             img {
                                 width: 30px;
                                 height: 30px;
@@ -358,6 +385,23 @@
                         display: flex;
                         align-items: center;
 
+                        &.disable {
+                            pointer-events: none;
+
+                            .order {
+                                color: #cccccc;
+                            }
+
+                            .con {
+                                .name {
+                                    color: #cccccc;
+                                }
+
+                                .singger {
+                                    color: #cccccc;
+                                }
+                            }
+                        }
 
                         .order {
                             width: 30px;
@@ -386,6 +430,18 @@
                                 overflow: hidden;
                                 white-space: nowrap;
                                 text-overflow: ellipsis;
+                                display: flex;
+                                align-items: center;
+
+                                span {
+                                    color: red;
+
+                                    i {
+                                        font-size: 19px;
+                                        margin-right: 2px;
+                                    }
+                                }
+
                             }
                         }
                     }
